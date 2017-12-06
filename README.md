@@ -1,22 +1,17 @@
-# Project title
+# word development
 
-A brief (one paragraph) description of the general idea.
+Not yet certain, but the idea is to have a chain of roughly three components. The first (and most interesting) step is synonym clustering.  Then by filtering out words that are orthographically/phonetically dissimilar it should be possible to restrict the groups to only variants of the same words. Maybe it would be possible to put them in order by finding the path through them with the lowest total edit distance/most feature similarity.
 
 ## Motivation, method, hypotheses
 
-A bit more detail on why the problem is interesting,
-initial ideas on what methods could be useful,
-what are the expectations, and how to test the resulting
-systems/models.
+This might be interesting as a way of finding sound correspondences through the history of a word, or possibly for etymology research. Also, since spelling was not/is not always standardized, this could help with searching texts that are not normalized (and be more accurate than a naïve fuzzy search).
 
 ## Relevant literature 
 
-A short list of literature (articles/books/blog posts/...). We will
-pick some of the listed papers for further class discussion.
+[A Minimally Supervised Approach for Synonym Extraction with Word Embeddings (Leeuwenberg et al., 2016)](https://ufal.mff.cuni.cz/pbml/105/art-leeuwenberg-et-al.pdf)
 
 ## Available data, tools, resources
 
 ## Project members
 
-- Name (GitHubID)
-- Name (GitHubID) 
+- Peter Schoener (peterr-s)
