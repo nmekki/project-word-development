@@ -16,7 +16,7 @@ I will be using the Hansard Corpus of British political speeches since it spans 
 
 ## Hypotheses
 
-I'll be rather tentative about my predictions and say that words which, through established linguistic processes, have their meaning diluted or intensified will not be the most noticeably flagged by this system, nor will those whose meaning is reversed; these words will keep roughly the same contexts and thus not be picked up as different by an embedding model. I expect it to pick up mainly on changes for things that are replaced or influenced by technological developments or simply drift do unrelated or indirectly related meanings.
+I'll be rather tentative about my predictions and say that words which, through established linguistic processes, have their meaning diluted or intensified will not be the most noticeably flagged by this system, nor will those whose meaning is reversed; these words will keep roughly the same contexts and thus not be picked up as different by an embedding model. I expect it to pick up mainly on changes for things that are replaced or influenced by technological developments or simply drift to unrelated or indirectly related meanings.
 
 ## Relevant literature 
 
