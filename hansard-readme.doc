@@ -1,0 +1,36 @@
+Each file contains the following columns:
+
+textID: used internally by the BYU version of the Hansard corpus (http://corpus.byu.edu/hansard)
+file: corresponds to the file namber from http://hansard.millbanksystems.com
+number of words
+house: l = Lords, c = Commons
+date
+parliament
+party
+speaker
+title
+
+------------------------------
+
+In some cases, it is possible to map this data to the speeches online from http://hansard.millbanksystems.com
+
+For example, consider the entry:
+
+1739803	S3V0268P0_02190	60	c	1882_04_24	22	Liberal	Mr_Robert_Abercromby	entail_bill_scotland_amp_x2014_legislation_hansard_24_april_1882_
+
+(or in vertical format:)
+
+1739803
+S3V0268P0_02190 **
+60
+c
+1882_04_24 **
+22
+Liberal
+Mr_Robert_Abercromby
+entail_bill_scotland_amp_x2014_legislation_hansard_24_april_1882_ **
+
+You can use the asterisked information to map this to:
+
+http://hansard.millbanksystems.com/commons/1882/apr/24/entail-bill-scotland-legislation#S3V0268P0_18820424_HOC_64
+
