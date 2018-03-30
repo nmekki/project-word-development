@@ -3,6 +3,7 @@
 import os
 import sys
 import gensim
+import pickle
 
 # constants
 window_len = 1
@@ -59,6 +60,7 @@ for year in range(start_year, end_year + 1) :
 	print("making models (%d/%d)" % (i, year_range), end = "\r")
 	i += 1
 print()
+del(sentence_sets)
 
 # consider only words that are in all models
 print("finding overlap...", end = "\r")
@@ -95,6 +97,12 @@ for word in wordlist :
 # sort list
 print("sorting...")
 drifters = sorted(word_scores, key=word_scores.get)
+del(word_scores)
+
+# save sorted list
+output = open("sorted-%s-%s+%s" % (sys.argv[0], sys.argv[1], sys.argv[2]), "wb")
+pickle.dump(drifters, output)
+output.close()
 
 print()
 print("best:")
