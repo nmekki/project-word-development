@@ -7,7 +7,9 @@ import pickle
 
 # constants
 window_len = 1
-input_dir = "./input"
+input_dir = "./preprocessed/"
+output_dir = "./output/"
+dimensionality = 50
 
 # map each time window to a sentence list and an embedding model
 sentence_sets = {}
@@ -15,10 +17,15 @@ models = {}
 
 # parse args
 if len(sys.argv) <= 3 :
-	print("Usage: drift.py [start_year] [end_year] [window_len]")
-start_year = int(sys.argv[0])
-end_year = int(sys.argv[1])
-window_len = int(sys.argv[2])
+	print("Usage: %s [start_year] [end_year] [window_len]" % sys.argv[0], file = sys.stderr)
+	sys.exit(3)
+start_year = int(sys.argv[1])
+end_year = int(sys.argv[2])
+window_len = int(sys.argv[3])
+
+if end_year < start_year :
+	print("that's not going to work", file = sys.stderr)
+	sys.exit(2)
 
 # make models
 print("making models", end = "\r")
@@ -26,7 +33,7 @@ year_range = end_year + 1 - start_year
 i = 1
 for year in range(start_year, end_year + 1) :
 	try :
-		input = open(str(year) + ".txt")
+		input = open(input_dir + str(year) + ".txt")
 		
 		# split by sentences
 		text = input.read()
@@ -50,8 +57,8 @@ for year in range(start_year, end_year + 1) :
 		print("No data in window for " + str(year), file = sys.stderr)
 		sys.exit(1)
 	else :
-		model = gensim.models.Word2Vec(sentence_sets[year], size = 100, window = 5, min_count = 5, workers = 4)
-		model.save(str(year) + "+" + str(window_len) + ".word2vec")
+		model = gensim.models.Word2Vec(sentence_sets[year], size = dimensionality, window = 5, min_count = 5, workers = 4)
+		model.save(output_dir + str(year) + "+" + str(window_len) + ".word2vec")
 		
 		# clear sentence set and model from memory
 		#del(model)
@@ -64,7 +71,7 @@ del(sentence_sets)
 
 # consider only words that are in all models
 print("finding overlap...", end = "\r")
-base = models[[m for m in models][0]] # there is probably a better way to do this but this gets the first model
+base = list(models.values())[0] # there is probably a better way to do this but this gets the first model
 wordset = []
 i = 1
 p = 0
@@ -84,7 +91,7 @@ for word in base :
 print()
 
 # save overlap set
-output = open("overlap-%s-%s+%s" % (sys.argv[0], sys.argv[1], sys.argv[2]), "wb")
+output = open(output_dir + "overlap-%s-%s+%s" % (sys.argv[1], sys.argv[2], sys.argv[3]), "wb")
 pickle.dump(wordset, output)
 output.close()
 
@@ -105,7 +112,7 @@ drifters = sorted(word_scores, key=word_scores.get)
 del(word_scores)
 
 # save sorted list
-output = open("sorted-%s-%s+%s" % (sys.argv[0], sys.argv[1], sys.argv[2]), "wb")
+output = open(output_dir + "sorted-%s-%s+%s" % (sys.argv[1], sys.argv[2], sys.argv[3]), "wb")
 pickle.dump(drifters, output)
 output.close()
 
