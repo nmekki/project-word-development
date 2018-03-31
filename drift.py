@@ -2,7 +2,7 @@
 
 import os
 import sys
-import gensim
+import gensim.models
 import pickle
 
 # constants
@@ -50,11 +50,11 @@ for year in range(start_year, end_year + 1) :
 		print("No data in window for " + str(year), file = sys.stderr)
 		sys.exit(1)
 	else :
-		model = Word2Vec(sentence_sets[year], size = 100, window = 5, min_count = 5, workers = 4)
+		model = gensim.models.Word2Vec(sentence_sets[year], size = 100, window = 5, min_count = 5, workers = 4)
 		model.save(str(year) + "+" + str(window_len) + ".word2vec")
 		
 		# clear sentence set and model from memory
-		del(model)
+		#del(model)
 	del(sentence_sets[year])
 	
 	print("making models (%d/%d)" % (i, year_range), end = "\r")
@@ -65,7 +65,7 @@ del(sentence_sets)
 # consider only words that are in all models
 print("finding overlap...", end = "\r")
 base = models[[m for m in models][0]] # there is probably a better way to do this but this gets the first model
-wordlist = []
+wordset = []
 i = 1
 p = 0
 for word in base :
@@ -75,7 +75,7 @@ for word in base :
 			add = False
 			break
 	if add :
-		wordlist += [word]
+		wordset |= {word}
 	
 	i += 1
 	if (100 * i // len(base)) > p :
@@ -83,10 +83,15 @@ for word in base :
 		print("finding overlap (%d%%)" % (p), end = "\r")
 print()
 
+# save overlap set
+output = open("overlap-%s-%s+%s" % (sys.argv[0], sys.argv[1], sys.argv[2]), "wb")
+pickle.dump(wordset, output)
+output.close()
+
 # go through all candidate words
 print("building neighbor lists...")
 word_scores = {}
-for word in wordlist :
+for word in wordset :
 	top_tens_union = set()
 	for model in models : # generate the set union over all models of the top ten lists
 		top_tens_union |= set(model.most_similar(positive=[word], topn=10))
