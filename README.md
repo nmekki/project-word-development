@@ -24,6 +24,8 @@ I'll be rather tentative about my predictions and say that words which, through 
 
 Semantic Shifts and Word Embeddings: 2 Case Studies (Kutuzov and Kuzmenko, c. 2017, not published in this form)
 
+[Exploration of Register-Dependent Word Semantics Using Word Embeddings (Kutuzov, Kuzmenko, and Markasova, 2016)](http://www.aclweb.org/anthology/W16-4005)
+
 ## Available data, tools, resources
 
 The corpus used here is the Hansard corpus; though there were smaller corpora that would also have worked (e.g. CoHA), this one is free. It can be downloaded manually [here](http://www.hansard-archive.parliament.uk) but for scraping refer to [here](https://andrewwhitby.com/2013/10/26/uk-hansard-archive-urls/). The latter will only scrape the House of Commons texts, but these make up the majority of the immense corpus anyway. This results in about 4 GB of zipped XML, which is closer to 14 GB when unzipped.
@@ -32,7 +34,7 @@ The corpus used here is the Hansard corpus; though there were smaller corpora th
 
 Because it takes so long to download, decompress, and preprocess, I have included the preprocessed data in the repo. Essentially, all of the dated text is stripped of XML and associated with its year.
 
-This project uses Word2Vec/gensim for the embedding models. Documentation is [here](https://radimhurek.com/gensim/index.html).
+This project uses Word2Vec/[gensim](https://radimhurek.com/gensim/index.html) for the embedding models.
 
 ## Project members
 
