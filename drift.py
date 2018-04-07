@@ -122,22 +122,22 @@ output.close()
 # print()
 
 for word in wordset :
-    print(word + "        ", end = "\r")
-    union = set()
-    rows = dict()
-    for year in range(start_year, end_year + 1) :
-        similar = models[year].most_similar(positive = [word], topn = 10)
-        union |= set([e[0] for e in similar])
-        rows[year] = dict(similar)
-    for year in rows :
-        for w in union :
-            if w not in rows[year] :
-                if w in models[year] :
-                    rows[year][w] = models[year].similarity(word, w)
-                else :
-                    rows[year][w] = 0
-    rows = numpy.array([[row[val] for val in sorted(row)] for row in list(rows.values())])
-    dict_metric2[word] = numpy.sum([numpy.std(row) for row in numpy.rot90(rows)])
+	print(word + "		", end = "\r")
+	union = set()
+	rows = dict()
+	for year in range(start_year, end_year + 1) :
+		similar = models[year].most_similar(positive = [word], topn = 10)
+		union |= set([e[0] for e in similar])
+		rows[year] = dict(similar)
+	for year in rows :
+		for w in union :
+			if w not in rows[year] :
+				if w in models[year] :
+					rows[year][w] = models[year].similarity(word, w)
+				else :
+					rows[year][w] = 0
+	rows = numpy.array([[row[val] for val in sorted(row)] for row in list(rows.values())])
+	dict_metric2[word] = numpy.sum([numpy.std(row) for row in numpy.rot90(rows)])
 	
 	i += 1
 	if (100 * i // len(wordset)) > p :
@@ -148,7 +148,7 @@ for word in wordset :
 print("Sorting...", end = "\r")
 drifters = sorted(word_scores, key = word_scores.get)
 del(word_scores)
-print("Sorted    ")
+print("Sorted	")
 
 # save sorted list
 output = open(output_dir + "sorted-%s-%s+%sx%d" % (sys.argv[1], sys.argv[2], sys.argv[3], dimensionality), "wb")
