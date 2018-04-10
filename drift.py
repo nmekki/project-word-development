@@ -5,6 +5,7 @@ import sys
 import gensim.models
 import pickle
 from nltk.tokenize import sent_tokenize, word_tokenize
+import numpy
 
 # constants
 window_len = 1
@@ -28,53 +29,58 @@ if end_year < start_year :
 	print("Fatal: End year must be after start year", file = sys.stderr)
 	sys.exit(2)
 
-# make models
-print("Making models...", end = "\r")
-year_range = end_year + 1 - start_year
-i = 1
+# # make models
+# print("Making models...", end = "\r")
+# year_range = end_year + 1 - start_year
+# i = 1
+# for year in range(start_year, end_year + 1) :
+	# try :
+		# input = open(input_dir + str(year) + ".txt")
+		
+		# # normalize, split by sentences
+		# text = input.read()
+		# text = text.lower()
+		# sentences = sent_tokenize(text)
+		# sentences = [word_tokenize(sent) for sent in sentences]
+		
+		# # add these sentences to every set in the time window
+		# for y in range(year, year + window_len) :
+			# if y not in sentence_sets :
+				# sentence_sets[y] = []
+			# sentence_sets[y] += sentences
+	
+	# except :
+		# print("Could not find data for " + str(year) + " (" + str(year) + ".txt); skipping")
+
+	# # make embedding model regardless of whether data for this year was found (use windows)
+	# # however, there must be something in the set or else this won't work; fail if empty
+	# if len(sentence_sets[year]) == 0 :
+		# print("Fatal: No data in window for " + str(year), file = sys.stderr)
+		# sys.exit(1)
+	# else :
+		# model = gensim.models.Word2Vec(sentence_sets[year], size = dimensionality, window = 5, min_count = 5, workers = 4)
+		# model.save("%s%d+%sx%d.word2vec" % (output_dir, year, sys.argv[3], dimensionality))
+		
+	# # clear sentence set from memory
+	# del(sentence_sets[year])
+	
+	# print("Making models (%d/%d)" % (i, year_range), end = "\r")
+	# i += 1
+# print()
+# del(sentence_sets)
+
+# intermittent load due to errors
+print("Loading models...", end = "\r")
 for year in range(start_year, end_year + 1) :
 	try :
-		input = open(input_dir + str(year) + ".txt")
-		
-		# normalize, split by sentences
-		text = input.read()
-		text = text.lower()
-		sentences = sent_tokenize(text)
-		sentences = [word_tokenize(sent) for sent in sentences]
-		
-		# add these sentences to every set in the time window
-		for y in range(year, year + window_len) :
-			if y not in sentence_sets :
-				sentence_sets[y] = []
-			sentence_sets[y] += sentences
-	
+		model = gensim.models.Word2Vec.load("%s%d+%sx%d.word2vec" % (output_dir, year, sys.argv[3], dimensionality))
+		models[year] = model.wv
+		del(model)
+		print("Loading models (" + str(year) + ")", end = "\r")
 	except :
-		print("Could not find data for " + str(year) + " (" + str(year) + ".txt); skipping")
-
-	# make embedding model regardless of whether data for this year was found (use windows)
-	# however, there must be something in the set or else this won't work; fail if empty
-	if len(sentence_sets[year]) == 0 :
-		print("Fatal: No data in window for " + str(year), file = sys.stderr)
-		sys.exit(1)
-	else :
-		model = gensim.models.Word2Vec(sentence_sets[year], size = dimensionality, window = 5, min_count = 5, workers = 4)
-		model.save("%s%d+%sx%d.word2vec" % (output_dir, year, sys.argv[3], dimensionality))
-		
-	# clear sentence set from memory
-	del(sentence_sets[year])
-	
-	print("Making models (%d/%d)" % (i, year_range), end = "\r")
-	i += 1
-print()
-del(sentence_sets)
-
-# # intermittent load due to errors
-# print("Loading models...", end = "\r")
-# for year in range(start_year, end_year + 1) :
-	# model = gensim.models.Word2Vec.load("%s%d+%sx%d.word2vec" % (output_dir, year, sys.argv[3], dimensionality))
-	# models[year] = model.wv
-	# del(model)
-	# print("Loading models (" + str(year) + ")", end = "\r")
+		print("Fatal: No model found for %d (%s%d+%sx%d.word2vec)" % (year, output_dir, year, sys.argv[3], dimensionality), file = sys.stderr)
+		sys.exit(4)
+print("Loading models (done)")
 
 # consider only words that are in all models
 print("Finding overlap...", end = "\r")
@@ -94,7 +100,7 @@ for word in base :
 	i += 1
 	if (100 * i // len(base)) > p :
 		p = 100 * i // len(base)
-		print("Finding overlap (%d%%)" % (p), end = "\r")
+		print("Finding overlap (%d%%; %d words)" % (p, len(wordset)), end = "\r")
 print()
 
 # save overlap set
@@ -103,8 +109,8 @@ pickle.dump(wordset, output)
 output.close()
 
 # go through all candidate words
-# print("Building neighbor lists...", end = "\r")
-# word_scores = {}
+# print("Calculating drift...", end = "\r")
+# word_scores = dict()
 # i = 1
 # p = 0
 # for word in wordset :
@@ -118,11 +124,13 @@ output.close()
 	# i += 1
 	# if (100 * i // len(wordset)) > p :
 		# p = (100 * i // len(wordset))
-		# print("Building neighbor lists (%d%%)" % (p), end = "\r")
+		# print("Calculating drift (%d%%)" % (p), end = "\r")
 # print()
 
+i = 1
+p = 0
+dict_metric2 = dict()
 for word in wordset :
-	print(word + "		", end = "\r")
 	union = set()
 	rows = dict()
 	for year in range(start_year, end_year + 1) :
@@ -142,13 +150,20 @@ for word in wordset :
 	i += 1
 	if (100 * i // len(wordset)) > p :
 		p = (100 * i // len(wordset))
-		print("Building neighbor lists (%d%%)" % (p), end = "\r")
+		print("Calculating drift (%d%%)" % (p), end = "\r")
+print()
+
+# # sort list
+# print("Sorting...", end = "\r")
+# drifters = sorted(word_scores, key = word_scores.get)
+# del(word_scores)
+# print("Sorted    ")
 
 # sort list
 print("Sorting...", end = "\r")
-drifters = sorted(word_scores, key = word_scores.get)
-del(word_scores)
-print("Sorted	")
+drifters = sorted(dict_metric2, key = dict_metric2.get)
+del(dict_metric2)
+print("Sorted    ")
 
 # save sorted list
 output = open(output_dir + "sorted-%s-%s+%sx%d" % (sys.argv[1], sys.argv[2], sys.argv[3], dimensionality), "wb")
