@@ -1,0 +1,31 @@
+\documentclass{article}
+
+\title{Identification of Semantic Drift in English Using Word Embeddings}
+\author{Peter Schoener}
+\date{\today}
+
+\begin{document}
+
+\abstract
+In this paper, we attempt to identify words which have undergone significant semantic shifts over time. We do this using the deviations in the cosines of the most similar words.
+
+\section Introduction
+Semantic drift, the change in meaning of a word over domain or time, is an important phenomenon to take into account when working with narrow corpora or individual texts. It can have a profound effect on the meaning of what is being read, leading to misinterpretation, or may simply look unfamiliar, in which case it is useful to analyze the meanings it may have taken in that particular context.
+
+The ability to automatically flag drifting words and and examine them more closely would also be helpful for understanding the causes, rate, and markers of drift, which would help not only with language reconstruction, but with prediction and identification of emerging changes.
+
+Perhaps most importantly, drift must be taken into account when working with broad corpora. The distributional hypothesis, for example, is widely accepted, but when working with a corpus that extends far into the past and attempting to apply it to current language, one might find that the learnt embeddings of certain words are inaccurate for the present, being an average of their current and past meanings.
+
+There is no natural or direct way to quantify the extent of drift, and so my method uses a metric internally and attempts externally only to rank or generate a list of words which should be examined for drift.
+
+\section Related Work
+This paper is a more or less direct extension of a paper by Kutuzov and Kuzmenko (c. 2016, not published in this form). That paper looks at drift as marked by deviation from an averaged set by a specific set in the list of embeddings most similar to that being examined. By counting the number of overlapping words in the lists of the ten closest, they determine whether or not substantial drift has occurred.
+
+\section Method
+
+
+\section Results
+
+\section Conclusion
+
+\end{document}
