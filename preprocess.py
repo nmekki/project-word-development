@@ -42,14 +42,15 @@ for filename in os.listdir(directory_path) :
 				
 				# if the element exists, add its contents to the aggregate (with a delimiter in case one is not already present)
 				if element != None :
-					# get all descendants; content may be nested deeper
-					if element.text != None :
-						text = element.text
-					else :
-						text = ""
-					for descendant in element.findall(".//", ns) :
-						if descendant.text != None :
-							text += " " + descendant.text
+					text = ""
+					
+					# recursively check elements (depth-first; retains intended order and is most pythonic)
+					elements = [element]
+					while elements :
+						e = elements.pop()
+						if e.text != None :
+							text += e.text
+						elements += e.findall(".//", ns)
 					
 					aggregate_file.write(text)
 					aggregate_file.write("\n")
