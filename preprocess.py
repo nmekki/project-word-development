@@ -3,8 +3,8 @@
 import xml.etree.ElementTree as etree
 import os
 
-directory_path = "./directory/"
-input_path = "./input/"
+directory_path = "./input/directory/"
+input_path = "./input/input/"
 output_path = "./preprocessed/"
 ns = {"xsi" : "http://www.w3.org/2001/XMLSchema-instance"} # namespace for all of the XML files
 
@@ -14,10 +14,13 @@ last_file = ""
 # go through all the directory files
 for filename in os.listdir(directory_path) :
 	directory_file = open(directory_path + filename, "r")
-	print("reading " + filename)
 	
 	# each line specifies a text snippet; not all files are from one specific year
-	for line in directory_file.read().split("\n") :	
+	i = 1
+	p = 0
+	lines = directory_file.read().split("\n")
+	print("Processing %s (0%%)" % (filename), end = "\r")
+	for line in lines :	
 		# ? filename_identifier ? house yyyy_mm_dd ? party title
 		fields = line.split()
 		
@@ -58,5 +61,11 @@ for filename in os.listdir(directory_path) :
 				aggregate_file.close()
 			except :
 				blacklist |= {id[0]}
+		
+		i += 1
+		if (100 * i // len(lines)) > p :
+			p = (100 * i // len(lines))
+			print("Processing %s (%d%%)" % (filename, p), end = "\r")
+	print("Processing %s (done)" % (filename))
 	
 	directory_file.close()
