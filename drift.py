@@ -18,12 +18,17 @@ sentence_sets = {}
 models = {}
 
 # parse args
-if len(sys.argv) <= 3 :
-	print("Usage: %s [start_year] [end_year] [window_len]" % sys.argv[0], file = sys.stderr)
+if len(sys.argv) <= 4 :
+	print("Usage: %s [start_year] [end_year] [window_len] [top_n] (--nocsv)" % sys.argv[0], file = sys.stderr)
 	sys.exit(3)
 start_year = int(sys.argv[1])
 end_year = int(sys.argv[2])
 window_len = int(sys.argv[3])
+top_n = int(sys.argv[4])
+if "--nocsv" in sys.argv :
+	csv = False
+else :
+	csv = True
 
 if end_year < start_year :
 	print("Fatal: End year must be after start year", file = sys.stderr)
@@ -110,12 +115,12 @@ output.close()
 
 i = 1
 p = 0
-dict_metric2 = dict()
+dict_metric = dict()
 for word in wordset :
 	union = set()
 	rows = dict()
 	for year in range(start_year, end_year + 1) :
-		similar = models[year].most_similar(positive = [word], topn = 10)
+		similar = models[year].most_similar(positive = [word], topn = top_n)
 		union |= set([e[0] for e in similar])
 		rows[year] = dict(similar)
 	for year in rows :
@@ -126,19 +131,20 @@ for word in wordset :
 				else :
 					rows[year][w] = 0
 	cols = numpy.array([[row[val] for val in sorted(row)] for row in list(rows.values())])
-	dict_metric2[word] = numpy.sum([numpy.std(row) for row in numpy.rot90(cols)])
+	dict_metric[word] = numpy.sum([numpy.std(row) for row in numpy.rot90(cols)])
 	
 	# write exhaustive data to csv
-	try :
-		with open("%s%s-%s-%s+%sx%d.csv" % (output_dir, word, sys.argv[1], sys.argv[2], sys.argv[3], dimensionality), "w") as output :
-			print(",%s" % (",".join(map(str, range(start_year, end_year + 1)))), file = output)
-			for word in union :
-				print(word, file = output, end = ",")
-				print(",".join(map(str, [rows[year][word] for year in range(start_year, end_year + 1)])), file = output)
-			print("", file = output)
-			output.close()
-	except :
-		print("Error: could not write file %s%s-%s-%s+%sx%d.csv; skipping" % (output_dir, word, sys.argv[1], sys.argv[2], sys.argv[3], dimensionality), file = sys.stderr)
+	if csv :
+		try :
+			with open("%s%s-%s-%s+%sx%dt%d.csv" % (output_dir, word, sys.argv[1], sys.argv[2], sys.argv[3], dimensionality, top_n), "w") as output :
+				print(",%s" % (",".join(map(str, range(start_year, end_year + 1)))), file = output)
+				for word in union :
+					print(word, file = output, end = ",")
+					print(",".join(map(str, [rows[year][word] for year in range(start_year, end_year + 1)])), file = output)
+				print("", file = output)
+				output.close()
+		except :
+			print("Error: could not write file %s%s-%s-%s+%sx%dt%d.csv; skipping" % (output_dir, word, sys.argv[1], sys.argv[2], sys.argv[3], dimensionality, top_n), file = sys.stderr)
 	
 	i += 1
 	if (100 * i // len(wordset)) > p :
@@ -148,12 +154,12 @@ print()
 
 # sort list
 print("Sorting...", end = "\r")
-drifters = sorted(dict_metric2, key = dict_metric2.get)
-#del(dict_metric2)
+drifters = sorted(dict_metric, key = dict_metric.get)
+#del(dict_metric)
 print("Sorted    ")
 
 # save sorted list
-output = open(output_dir + "sorted-%s-%s+%sx%d" % (sys.argv[1], sys.argv[2], sys.argv[3], dimensionality), "wb")
+output = open(output_dir + "sorted-%s-%s+%sx%dt%d" % (sys.argv[1], sys.argv[2], sys.argv[3], dimensionality, top_n), "wb")
 pickle.dump(drifters, output)
 output.close()
 
