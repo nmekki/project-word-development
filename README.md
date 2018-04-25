@@ -39,4 +39,3 @@ This project uses Word2Vec/[gensim](https://radimhurek.com/gensim/index.html) fo
 ## Project members
 
 - Peter Schoener (peterr-s)
-- Nidhal Mekki (nmekki)
