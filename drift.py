@@ -158,7 +158,6 @@ print()
 # sort list
 print("Sorting...", end = "\r")
 drifters = sorted(dict_metric, key = dict_metric.get)
-#del(dict_metric)
 print("Sorted    ")
 
 # save sorted list
@@ -166,7 +165,12 @@ output = open(output_dir + "sorted-%s-%s+%sx%dt%d" % (start_year, end_year, wind
 pickle.dump(drifters, output)
 output.close()
 
+# save metric dict
+output = open(output_dir + "metric-%s-%s+%sx%dt%d" % (start_year, end_year, window_len, dimensionality, top_n), "wb")
+pickle.dump(dict_metric, output)
+output.close()
+
 print()
 print("Best:")
-for word in drifters[:30] :
-	print("\t%s" % word)
+for word in drifters[-30:] :
+	print("\t%s\t%d" % (word, dict_metric[word]))
