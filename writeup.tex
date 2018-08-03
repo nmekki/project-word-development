@@ -1,6 +1,7 @@
 \documentclass{article}
 
 \usepackage{mathtools}
+\usepackage{longtable}
 
 \title{Identification of Semantic Shifts in English Using Word Embeddings}
 \author{Peter Schoener}
@@ -31,7 +32,9 @@ The experiment was originally planned to be more along the lines of Leeuwenberg 
 \section{Method}
 This experiment used the British Parliament's Hansard Corpus since it is large enough to have substantial amounts of data even for the earliest years. It totals 1.6 billion tokens, though it seems not all of these are indexed by date; only those indexed could be used since the goal was to separate the models by year. The extracted raw text contains about 350 million tokens, with about 17,000 in the smallest year-specific set.
 
-The text contains many abbreviations, so rather than tokenizing directly or naïvely it made sense the NLTK sentence splitter and then the NLTK tokenizer. The text was normalized to lowercase due to irregular and/or frequent capitalization in certain parts of the record. The embeddings used were Word2Vec with 50 dimensions, a rather low number but necessary due to computing power constraints. Still, the normal intuitions around embedding models held.
+The text contains many abbreviations, so rather than tokenizing directly or naïvely it made sense the NLTK sentence splitter and then the NLTK tokenizer. The text was normalized to lowercase due to irregular and/or frequent capitalization in certain parts of the record. The embeddings first used were Word2Vec with 50 dimensions, a rather low number but necessary due to computing power constraints. Still, the normal intuitions around embedding models held, but in order to get more accurate results this was later increased to 100.
+
+Although it might have limited the issues caused by the size of the dataset, the text was not lemmatized for two reasons. Some words have vastly different meanings in one particular form than in the rest, meaning the algorithm could be confused by the overly long neighbor list, and secondly this is generally caused by one particular form drifting away from the others rather than by the whole group drifting.
 
 In order to account for rare tokens and sparse individual years, the embedding models were smoothed with a window of five years. This window was chosen so as to keep even fast drifts noticeable while making the embeddings dense enough to use. Only the words that appear in all windows could be considered by the drift metric, so it is important that rare words, being the most prone to drift, not be entirely filtered out.
 
@@ -45,24 +48,141 @@ The list of all words to which the metric can be applied are then ranked accordi
 
 \section{Results}
 
-Filtering for only words which occur in all windows, I arrived at a list of just over a thousand. While this is not an incredibly long list and does not include many uncommon words \textemdash\ which might have been subject to more severe drift \textemdash\ it does rank several common words which have drifted, as well as some more or less technical vocabulary which has markedly higher frequency and/or different meaning in the context of the corpus (legislative discussions).
+Filtering for only words which occur in all windows, I arrived at a list of just under a thousand. While this is not an incredibly long list and does not include many uncommon words \textemdash\ which might have been subject to more severe drift \textemdash\ it does rank several common words which have drifted, as well as some more or less technical vocabulary which has markedly higher frequency and/or different meaning in the context of the corpus (legislative discussions).
 
-Among the highest flagged words were some which underwent substantial meaning change, such as ``before,'' which seems to have steadily gained its locative sense (``out,'' opposite of ``within,'' etc.) starting in the 1860s. ``say'' also appears to have started introducing postulates (similarly to ``think,'' ``imagine,'' ``conceive,'' etc.) around the 1890s, its closeness to the original meaning remaining the same. The versatile preposition ``on'' seems to have become more commonly used to introduce a topic (``concerning,'' ``regarding,'' etc.) although in the sense of ``to be on about sth.'' (``discussing'') it first lost popularity and then fluctuated, never fully losing this meaning.
+The top 100 words according to the metric are as follows:
 
-There are other, less direct changes that can be seen: ``could'' and ``would'' are supposed to have become less tentative, closing in on factives. For example, they both moved closer to various forms of ``is'' and lost similarity to such words as ``think''. However, I would speculate that this is due to their always having been found in the same sorts of contexts, which is exactly what the model captures, and these factives becoming more common in later years.
+\begin{longtable}[c]{ll}
+word                                 & drift       \\
+\endhead
+%
+\multicolumn{1}{l|}{separate}        & 499.00  \\ \hline
+\multicolumn{1}{l|}{liverpool}       & 499.22  \\ \hline
+\multicolumn{1}{l|}{restriction}     & 499.73  \\ \hline
+\multicolumn{1}{l|}{private}         & 500.12  \\ \hline
+\multicolumn{1}{l|}{here}            & 500.85  \\ \hline
+\multicolumn{1}{l|}{actual}          & 503.23  \\ \hline
+\multicolumn{1}{l|}{natural}         & 506.12  \\ \hline
+\multicolumn{1}{l|}{thus}            & 506.33  \\ \hline
+\multicolumn{1}{l|}{sir}             & 512.19  \\ \hline
+\multicolumn{1}{l|}{relative}        & 514.25  \\ \hline
+\multicolumn{1}{l|}{district}        & 521.20  \\ \hline
+\multicolumn{1}{l|}{chairman}        & 522.18  \\ \hline
+\multicolumn{1}{l|}{light}           & 522.73  \\ \hline
+\multicolumn{1}{l|}{began}           & 523.44  \\ \hline
+\multicolumn{1}{l|}{continuance}     & 523.90  \\ \hline
+\multicolumn{1}{l|}{propriety}       & 532.08  \\ \hline
+\multicolumn{1}{l|}{directors}       & 539.12  \\ \hline
+\multicolumn{1}{l|}{temporary}       & 540.50  \\ \hline
+\multicolumn{1}{l|}{crisis}          & 544.71  \\ \hline
+\multicolumn{1}{l|}{respectable}     & 546.91  \\ \hline
+\multicolumn{1}{l|}{except}          & 550.70  \\ \hline
+\multicolumn{1}{l|}{afterwards}      & 550.98  \\ \hline
+\multicolumn{1}{l|}{none}            & 555.18  \\ \hline
+\multicolumn{1}{l|}{particulars}     & 556.38  \\ \hline
+\multicolumn{1}{l|}{discipline}      & 556.41  \\ \hline
+\multicolumn{1}{l|}{above}           & 557.75  \\ \hline
+\multicolumn{1}{l|}{)}               & 558.83  \\ \hline
+\multicolumn{1}{l|}{attendance}      & 562.22  \\ \hline
+\multicolumn{1}{l|}{regular}         & 562.70  \\ \hline
+\multicolumn{1}{l|}{disposition}     & 564.47  \\ \hline
+\multicolumn{1}{l|}{precisely}       & 564.93  \\ \hline
+\multicolumn{1}{l|}{parliamentary}   & 565.15  \\ \hline
+\multicolumn{1}{l|}{:}               & 567.60  \\ \hline
+\multicolumn{1}{l|}{forces}          & 567.97  \\ \hline
+\multicolumn{1}{l|}{?}               & 569.46  \\ \hline
+\multicolumn{1}{l|}{usual}           & 575.83  \\ \hline
+\multicolumn{1}{l|}{whenever}        & 576.18  \\ \hline
+\multicolumn{1}{l|}{lie}             & 578.79  \\ \hline
+\multicolumn{1}{l|}{exemption}       & 582.68  \\ \hline
+\multicolumn{1}{l|}{renewal}         & 585.45  \\ \hline
+\multicolumn{1}{l|}{arms}            & 588.48  \\ \hline
+\multicolumn{1}{l|}{materially}      & 591.85  \\ \hline
+\multicolumn{1}{l|}{young}           & 594.89  \\ \hline
+\multicolumn{1}{l|}{line}            & 596.70  \\ \hline
+\multicolumn{1}{l|}{latter}          & 606.63  \\ \hline
+\multicolumn{1}{l|}{censure}         & 606.69  \\ \hline
+\multicolumn{1}{l|}{lieutenant}      & 609.40  \\ \hline
+\multicolumn{1}{l|}{deficiency}      & 619.78  \\ \hline
+\multicolumn{1}{l|}{enemy}           & 620.24  \\ \hline
+\multicolumn{1}{l|}{notes}           & 621.75  \\ \hline
+\multicolumn{1}{l|}{fell}            & 626.59  \\ \hline
+\multicolumn{1}{l|}{ways}            & 628.69  \\ \hline
+\multicolumn{1}{l|}{king}            & 634.82  \\ \hline
+\multicolumn{1}{l|}{attending}       & 638.10  \\ \hline
+\multicolumn{1}{l|}{residence}       & 640.48  \\ \hline
+\multicolumn{1}{l|}{whereas}         & 645.87  \\ \hline
+\multicolumn{1}{l|}{mischief}        & 646.62  \\ \hline
+\multicolumn{1}{l|}{near}            & 648.92  \\ \hline
+\multicolumn{1}{l|}{mode}            & 649.69  \\ \hline
+\multicolumn{1}{l|}{w.}              & 654.73  \\ \hline
+\multicolumn{1}{l|}{principal}       & 655.09  \\ \hline
+\multicolumn{1}{l|}{corps}           & 668.18  \\ \hline
+\multicolumn{1}{l|}{rising}          & 671.17  \\ \hline
+\multicolumn{1}{l|}{directly}        & 673.41  \\ \hline
+\multicolumn{1}{l|}{clergy}          & 684.38  \\ \hline
+\multicolumn{1}{l|}{forth}           & 686.01  \\ \hline
+\multicolumn{1}{l|}{merchants}       & 687.78  \\ \hline
+\multicolumn{1}{l|}{mr.}             & 690.19  \\ \hline
+\multicolumn{1}{l|}{resumed}         & 690.69  \\ \hline
+\multicolumn{1}{l|}{voluntary}       & 718.86  \\ \hline
+\multicolumn{1}{l|}{(}               & 720.04  \\ \hline
+\multicolumn{1}{l|}{throne}          & 721.10  \\ \hline
+\multicolumn{1}{l|}{honourable}      & 724.88  \\ \hline
+\multicolumn{1}{l|}{dublin}          & 728.00  \\ \hline
+\multicolumn{1}{l|}{follows}         & 728.56  \\ \hline
+\multicolumn{1}{l|}{accordingly}     & 741.85  \\ \hline
+\multicolumn{1}{l|}{attorney}        & 774.53  \\ \hline
+\multicolumn{1}{l|}{notwithstanding} & 775.09  \\ \hline
+\multicolumn{1}{l|}{field}           & 784.19  \\ \hline
+\multicolumn{1}{l|}{respecting}      & 821.67  \\ \hline
+\multicolumn{1}{l|}{lately}          & 832.44  \\ \hline
+\multicolumn{1}{l|}{francis}         & 834.03  \\ \hline
+\multicolumn{1}{l|}{mr}              & 837.30  \\ \hline
+\multicolumn{1}{l|}{regularly}       & 840.65  \\ \hline
+\multicolumn{1}{l|}{distinctly}      & 851.35  \\ \hline
+\multicolumn{1}{l|}{rose}            & 887.50  \\ \hline
+\multicolumn{1}{l|}{approbation}     & 907.94  \\ \hline
+\multicolumn{1}{l|}{c.}              & 908.77  \\ \hline
+\multicolumn{1}{l|}{volunteer}       & 937.33  \\ \hline
+\multicolumn{1}{l|}{!}               & 965.13  \\ \hline
+\multicolumn{1}{l|}{concurred}       & 968.07  \\ \hline
+\multicolumn{1}{l|}{ad}              & 970.48  \\ \hline
+\multicolumn{1}{l|}{\& }             & 983.99  \\ \hline
+\multicolumn{1}{l|}{commander}       & 1017.29 \\ \hline
+\multicolumn{1}{l|}{begged}          & 1020.11 \\ \hline
+\multicolumn{1}{l|}{contest}         & 1030.57 \\ \hline
+\multicolumn{1}{l|}{pursuant}        & 1033.49 \\ \hline
+\multicolumn{1}{l|}{tending}         & 1039.51 \\ \hline
+\multicolumn{1}{l|}{species}         & 1048.04 \\ \hline
+\multicolumn{1}{l|}{principally}     & 1195.64 \\ \hline
+\end{longtable}
 
-There were also notable fluctuations in the cooccurence of ``ought'' and ``to,'' showing that the stylistic choice of ``X ought Y'' versus ``X ought to Y'' tipped back and forth a few times during the examined period. This could also be an indicator of the use of ``ought'' in its nonmodal sense, or of the verb being implied.
 
-However, there were many words which clearly underwent no change and nonetheless topped the ranking. Stable particles such as ``a,'' ``if,'' and ``no'' were in the top few despite clearly having no actual meaning change.
+It is worth noting that among the highest ranked words are some with multiple senses, such as ``tending,'' ``pursuant,'' ``contest,'' ``rose,'' etc. For many of these it can be seen in the neighbor lists that the neighbor lists have changed, shifting between the senses, but for some there just happens to be a large amount of noise. Although present, words relating to the senses of ``pursuant'' as in ``pursuing'' and ``in accordance with'' are not very prominent in the neighbor lists, with numbers, tokens garbled by encoding errors or typos, and seemingly unrelated words accounting for a large portion of the variation. Indeed this word must have undergone some degree of shift, but the fact that it was picked up by the algorithm seems largely to have been a coincidence caused by the noise in the limited dataset.
+
+Another category featuring prominently is punctuation and abbreviations, e.g. ``\& ,'' ``!,'' ``mr.,''; these tokens are extremely common and appear in a variety of contexts, being noisy by nature, rather than as a result of the size of the dataset.
+
+Though there are some words in the top list that seem to have undergone drift, it really does seem to be mainly those which have even at present two senses, of which one became more dominant over time. Counterexamples might include ``mischief'', which is ranked very highly and has retained largely the same denotation, but with a considerably softened connotation.
+
+One unintended consequence of the metric is that as a word comes into or falls out of use, a period of instability arises because an embedding can not be accurately trained, leading to marking of words that gain or lose relevance in a big way, such as ``propriety.''
+
+However, on the other end of the scale, it can be seen that particles such as ``a'' with a value of 325.01, ``no'' with 195.71, and ``if'' with 151.87 are among the lowest ranked by this metric. Clearly, function words such as these should be stable, and this is captured by the metric. That being said, there are some words at the bottom which intuitively seem to have undergone drift; ``would'' does not have the same sense today that it does in much archaic text, but it is assigned a value of only 136.61.
 
 \section{Conclusion}
 
-One explanation of the strange inclusion of very stable words at the top of the list is that they are not similar enough to any words to have stable correspondences; while ``the'' is in the list of similar words for ``a,'' so are 65 others which have no such similarity, at least not in terms of meaning.
+One immediately apparent property of the metric is that it assigns astronomically high values to the top few most drifted items, with the top percentile being twice as highly marked as the tenth. This is not in and of itself a problem, but would suggest that limiting one or more of the factors, for example with a logarithm, could prevent runaway values caused by one outlying feature of a candidate.
 
-An obvious continuation of this experiment would be to rerun it on a larger dataset, possibly one with more general domain, to fill in the gaps that limit the list of words that can be evaluated. It would also be interesting to see how well the metric works on words that do not appear in all years, but it should be borne in mind that the current setup, especially evaluating the words on the metric, was already fairly computationally expensive and allowing short gaps would vastly increase the space to be evaluated.
+The observation that many words flagged simply have two meanings may simply be a result of the dataset going back no further than the beginning of the 19th century; current English is entirely mutually intelligible with the English of then; indeed, much of the most famous literature today is at least that old; if people can still understand that language, clearly the old senses of common words are still known, possibly leading to the perception that a word has not changed meaning and merely tipped in favor of one. Still, this is clearly a form of drift.
+
+An obvious continuation of this experiment would be to rerun it on a larger dataset, possibly one with more general domain, to fill in the gaps that limit the list of words that can be evaluated. As mentioned above another expansion would be in time range; some people already have trouble understanding Early Modern English, so a corpus going back an additional three hundred years would be useful. Any earlier than that and the text would predate the rough standardization of English leading to further difficulties, but already such a broad corpus would be difficult to find or assemble, especially with enough data to get meaningful embeddings. This might limit even further the set of words considered, since many would not appear toward one end of the spectrum or the other.
+
+It would also be interesting to see how well the metric works on words that do not appear in all years, but it should be borne in mind that the current setup, especially evaluating the words on the metric, was already fairly computationally expensive and allowing short gaps would vastly increase the space to be evaluated.
 
 Also, it would be interesting to see the effects of using a lemmatizer during preprocessing. Many of the similar words captured were alternate forms of each other, and consolidating them would hopefully make the effects on them more visible. It would also free up space in the top ten for more words, which could greatly affect the final outcome since the new additions would be more distant and possibly more mobile.
 
 This is not necessarily desirable; the current setup already captures dozens of neighbors for each word, obscuring the closer meanings and possibly skewing the metric with changes in cosine that do not actually represent changes in meaning. It may therefore be better to reduce the number of neighbors captured for the union, which could in turn more greatly reduce the size of that union; less similar and therefore less stable neighbors would not be counted.
+
+All in all the metric is a qualified success; it marks words for which dominance of senses shifts or which go in and out of fashion, while ignoring those that clearly do not change meaning. However, it does seem to have some trouble identifying clear drift, that is, a word losing one meaning and gaining another. The improvements outlined would be a good starting point, but there is clearly far more work to be done in order to get a clear signal out of the noise.
 
 \end{document}
